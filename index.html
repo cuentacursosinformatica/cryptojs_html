@@ -1,19 +1,41 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-<title>Cifrar con CryptoJS..</title>
+<title>Cifrar con CryptoJS</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
+	* {
+  box-sizing: border-box; /* incluye padding y border en el width */
+}
 body{ font-family:verdana;font-size:14px; }
 h1 { border-bottom: solid 1px red; border-color:grey; }
-div { margin-top: 10px; width:90%;margin-left: 16px;}
-label { display:inline-block; width:150px;}
-input {display:inline-block; width:60%;}
 
+div {
+  margin-top: 0px;
+  width: 90%;
+  margin-left: 16px;
+}
+
+label { 
+	width:250px;
+	margin-bottom: 1px;
+	display: block;
+}
+
+input {
+	width: 100%;
+	margin-top: 4px;
+	margin-bottom: 8px;
+}
+
+button {height: 25px;
+		margin-bottom: 6px;}
 
 .boton_grande { width:100%; }
+
+textarea {width: 100%;margin-top: 4px;margin-bottom: 4px;}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <script>
@@ -52,14 +74,14 @@ mensaje_cifrado_caja.value = mensaje_original
 </script>
 </head>
 <body>
-<h1>Cifrar AES CryptoJS.</h1>
+<h1>Cifrar AES CryptoJS</h1>
 <p>Instrucciones:</p>
 <ol>
 <li>Escribe una contraseña
 <li>Teclea tu mensaje de entrada
 <li>Pulsa el botón para cifrar o descifrar
 </ol>
-<hr>
+<hr><br>
 <div>
 <label for="tu_password">Contraseña:</label>
 <input type="text" name="contraseña" id="tu_password" placeholder="escribe tu contraseña" >
@@ -69,20 +91,26 @@ mensaje_cifrado_caja.value = mensaje_original
 <label for="mensaje_cifrar">Mensaje entrada:</label>
 <input type="text" name="mensaje" id="mensaje_cifrar" placeholder="escribe tu mensaje para cifrar" >
 </div>
+
+
+
+<br>
+
+<div>
+<button type="button" class="boton_grande" onclick="cifrar()">CIFRAR</button>	
+</div>
+
+<div>
+<button type="button" class="boton_grande" onclick="descifrar()">DESCIFRAR</button>
+</div>
+<br>
+
 <div>
 <label for="mensaje_cifrado">Mensaje salida:</label>
-<input type="text" name="mensaje_cifrado" id="mensaje_cifrado" placeholder="escribe tu mensaje para cifrar" >
-</div>
-<br>
-<div>
-<input onclick="cifrar()" type="button" class="boton_grande" value="CLIC PARA CIFRAR">
+<textarea rows="6" type="text" name="mensaje_cifrado" id="mensaje_cifrado" placeholder="escribe tu mensaje para cifrar" ></textarea>
 </div>
 <div>
-<input onclick="descifrar()" type="button" class="boton_grande" value="CLIC PARA DESCIFRAR">
-</div>
-<br>
-<div>
-<input onclick="copiarTextoCifrado()" type="button" class="boton_grande" value="CLIC PARA COPIAR SALIDA">
+<button type="button" class="boton_grande" onclick="copiarTextoCifrado()">COPIAR SALIDA</button>
 </div>
 
 </body>
