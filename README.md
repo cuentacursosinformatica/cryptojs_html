@@ -1,4 +1,4 @@
-
+**index.html**
 
 **Características:**
 
@@ -69,5 +69,11 @@ Para aumentar la seguridad se puede utilizar Web Crypto API del navegador.
 | AES + scrypt               | scrypt           | GCM/CBC  | Máxima seguridad frente a ataques modernos |
 
 
+
+**index_pbkdf2_aes_cbc.html**
+
+- Clave derivada con PBKDF2 (100.000 iteraciones + SHA-256).
+- Salt y IV aleatorios para cada cifrado, incluidos en el mensaje cifrado.
+- AES sigue usando CBC, pero la derivación de clave ahora es mucho más segura que EVP_BytesToKey.
 
 
