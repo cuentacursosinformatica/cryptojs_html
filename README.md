@@ -77,3 +77,13 @@ Para aumentar la seguridad se puede utilizar Web Crypto API del navegador.
 - AES sigue usando CBC, pero la derivación de clave ahora es mucho más segura que EVP_BytesToKey.
 
 
+
+**index_aes_gcm_pbkdf2.html**
+
+AES-GCM → confidencialidad + autenticidad (detecta manipulaciones).
+PBKDF2 con 100.000 iteraciones + SHA-256 + salt aleatorio → derivación de clave segura.
+IV aleatorio cada cifrado → mismo mensaje + contraseña da resultado distinto.
+El mensaje cifrado se almacena en Base64 y combina salt, IV y ciphertext con : como separador.
+Funciona completamente en el navegador, sin librerías externas para cifrado seguro.
+
+
