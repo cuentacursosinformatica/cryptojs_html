@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Cifrar con CryptoJS</title>
+<title>CryptoJS AES-128 simple</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
@@ -68,12 +68,12 @@ mensaje_cifrado_caja.value = mensaje_original
 </script>
 </head>
 <body>
-<h1>Cifrar AES CryptoJS</h1>
+<h1>CryptoJS AES-128 simple</h1>
 <p>Instrucciones:</p>
 <ol>
-<li>Escribe una contraseña
-<li>Teclea tu mensaje de entrada
-<li>Pulsa el botón para cifrar o descifrar
+<li>Escribe tu contraseña
+<li>Escribe tu mensaje de entrada
+<li>Pulsa el botón cifrar / descifrar
 </ol>
 <hr><br>
 <div>
@@ -86,10 +86,10 @@ mensaje_cifrado_caja.value = mensaje_original
 </div>
 <br>
 <div>
-<button type="button" class="boton_grande" onclick="cifrar()">CIFRAR</button>	
+<button type="button" class="boton_grande" onclick="cifrar()">Cifrar</button>	
 </div>
 <div>
-<button type="button" class="boton_grande" onclick="descifrar()">DESCIFRAR</button>
+<button type="button" class="boton_grande" onclick="descifrar()">Descifrar</button>
 </div>
 <br>
 <div>
@@ -97,7 +97,7 @@ mensaje_cifrado_caja.value = mensaje_original
 <textarea rows="6" type="text" name="mensaje_cifrado" id="mensaje_cifrado" placeholder="escribe tu mensaje para cifrar" ></textarea>
 </div>
 <div>
-<button type="button" class="boton_grande" onclick="copiarTextoCifrado()">COPIAR SALIDA</button>
+<button type="button" class="boton_grande" onclick="copiarTextoCifrado()">Copiar salida</button>
 </div>
 </body>
 </html>
