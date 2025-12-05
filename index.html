@@ -50,6 +50,28 @@ footer {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 
 <script>
+// Validar que los campos no están vacíos antes de la operación
+	
+ function validarCampos() {
+  const password = document.getElementById("tu_password").value.trim();
+  const mensaje = document.getElementById("mensaje_cifrar").value.trim();
+  
+  if (password === "") {
+    alert("⚠️ Por favor, escribe una contraseña");
+    document.getElementById("tu_password").focus();
+    return false;
+  }
+  
+  if (mensaje === "") {
+    alert("⚠️ Por favor, escribe un mensaje");
+    document.getElementById("mensaje_cifrar").focus();
+    return false;
+  }
+  
+  return true; // Todo OK
+} 
+
+
 function copiarTextoCifrado(){
 	const mensaje_cifrado = document.getElementById("mensaje_cifrado").value
 	//console.log(texto);
@@ -61,24 +83,32 @@ function copiarTextoCifrado(){
              })
 		.catch(err => { console.log("Error al copiar: ", err); });
 }}
-function cifrar(){
-const password = document.getElementById("tu_password").value;
-const mensaje = document.getElementById("mensaje_cifrar").value;
-const mensaje_cifrado_caja = document.getElementById("mensaje_cifrado");
-const mensaje_cifrado = CryptoJS.AES.encrypt(mensaje, password).toString();
-mensaje_cifrado_caja.value = mensaje_cifrado;
-console.log(mensaje_cifrado);
-//alert("Mensaje secreto:\n"+mensaje_cifrado);
-}
-function descifrar(){
-const password = document.getElementById("tu_password").value;
-const mensaje = document.getElementById("mensaje_cifrar").value;
-const mensaje_cifrado_caja = document.getElementById("mensaje_cifrado");
-const bytes = CryptoJS.AES.decrypt(mensaje, password);
-const mensaje_original = bytes.toString(CryptoJS.enc.Utf8);
-console.log(mensaje_original);
-mensaje_cifrado_caja.value = mensaje_original
-//alert("Mensaje original:\n"+mensaje_original);
+
+	function cifrar(){
+	if (!validarCampos()) {
+    	return; // Sale de la función si hay error
+  		}
+	const password = document.getElementById("tu_password").value;
+	const mensaje = document.getElementById("mensaje_cifrar").value;
+	const mensaje_cifrado_caja = document.getElementById("mensaje_cifrado");
+	const mensaje_cifrado = CryptoJS.AES.encrypt(mensaje, password).toString();
+	mensaje_cifrado_caja.value = mensaje_cifrado;
+	console.log(mensaje_cifrado);
+	//alert("Mensaje secreto:\n"+mensaje_cifrado);
+	}
+
+	function descifrar(){
+		if (!validarCampos()) {
+    		return; // Sale de la función si hay error
+  				}
+		const password = document.getElementById("tu_password").value;
+		const mensaje = document.getElementById("mensaje_cifrar").value;
+		const mensaje_cifrado_caja = document.getElementById("mensaje_cifrado");
+		const bytes = CryptoJS.AES.decrypt(mensaje, password);
+		const mensaje_original = bytes.toString(CryptoJS.enc.Utf8);
+		console.log(mensaje_original);
+		mensaje_cifrado_caja.value = mensaje_original
+		//alert("Mensaje original:\n"+mensaje_original);
 }
 </script>
 </head>
