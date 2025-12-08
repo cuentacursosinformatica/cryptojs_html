@@ -1,151 +1,341 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>CryptoJS AES-256 + PBKDF2 + HMAC</title>
+<title>Actividad 3: AES-256 + PBKDF2 + HMAC</title>
+<link rel="icon" href="data:,">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  body{ font-family:verdana;font-size:14px; }
-  .container { width: 90%; margin-left: 16px; margin-bottom: 10px; }
-  input, textarea, button { width: 100%; margin-top: 5px; margin-bottom: 5px; }
-  button { height: 30px; }
-  .error { color: red; font-weight: bold; }
-  .success { color: green; font-weight: bold; }
-  #tiempo_ejecucion { color: #007bff; font-weight: bold; font-size: 13px; }
+/* Estilos heredados de tu Versión 2 */
+* { box-sizing: border-box; }
+a.invisible-link { color: inherit; text-decoration: none; cursor: default; }
+body{ font-family:verdana;font-size:14px; }
+h1 { border-bottom: solid 1px red; border-color:grey; }
+
+div { margin-top: 0px; margin-bottom: 4px; width: 90%; margin-left: 16px; }
+label { width:250px; margin-bottom: 1px; display: block; }
+input { width: 100%; margin-top: 4px; margin-bottom: 8px; }
+button { height: 25px; margin-bottom: 6px; }
+.boton_grande { width:100%; }
+textarea { width: 100%; margin-top: 4px; margin-bottom: 4px; }
+
+footer {
+  width: 90%; margin-top: 20px; margin-left: 16px; padding-left: 0px;
+  text-align: center; background-color: #f5f5f5; border-top: 1px solid #ddd;
+  font-size: 14px; color: #666;
+}
+footer div { margin: 0; }
+
+/* Estilos fortaleza contraseña */
+.password-container { position: relative; }
+.fortaleza-password {
+  position: absolute; right: 10px; top: 32px; font-size: 14px; font-weight: bold;
+  padding: 2px 8px; border-radius: 3px; display: none;
+}
+.fortaleza-baja { color: #d32f2f; background-color: #ffebee; }
+.fortaleza-bien { color: #f57c00; background-color: #fff3e0; }
+.fortaleza-mejor { color: #388e3c; background-color: #e8f5e9; }
+
+/* Estilo para el tiempo de ejecución */
+#tiempo_ejecucion {
+    color: #007bff; /* Azul para destacar */
+    font-weight: bold;
+    font-size: 13px;
+    min-height: 20px; /* Evita saltos de línea */
+}
 </style>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 
 <script>
-// (Aquí irían tus funciones validarCampos y comprobarFortaleza igual que en la V2)
-// ...
+// --- FUNCIONES DE UTILIDAD (UI) ---
 
-function cifrar() {
-  // ... validaciones previas ...
+function comprobarFortaleza() {
   const password = document.getElementById("tu_password").value;
-  const mensaje = document.getElementById("mensaje_cifrar").value;
-
-  // UI: Calculando...
-  document.getElementById("btn_cifrar").innerText = "Calculando...";
+  const indicador = document.getElementById("fortaleza_indicador");
+  const longitud = password.length;
   
-  setTimeout(() => {
-    const t_inicio = performance.now();
-
-    // 1. Generar Salt y Clave AES (igual que V2)
-    const salt = CryptoJS.lib.WordArray.random(128/8); 
-    const keyAES = CryptoJS.PBKDF2(password, salt, {
-      keySize: 256/32,
-      iterations: 100000,
-      hasher: CryptoJS.algo.SHA256
-    });
-
-    // 2. Cifrar (igual que V2)
-    const iv = CryptoJS.lib.WordArray.random(128/8);
-    const encrypted = CryptoJS.AES.encrypt(mensaje, keyAES, {
-      iv: iv,
-      mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7
-    });
-
-    // 3. Preparar el paquete cifrado (Salt + IV + Ciphertext)
-    // Nota: Es importante firmar TAMBIÉN el Salt y el IV para evitar manipulaciones ahí.
-    const paqueteCifradoHex = salt.toString() + iv.toString() + encrypted.ciphertext.toString();
-    const paqueteWordArray = CryptoJS.enc.Hex.parse(paqueteCifradoHex);
-
-    // --- NUEVO V3: CALCULAR HMAC ---
-    // Usamos la password como clave para el HMAC (o podríamos derivar una segunda clave)
-    // HMAC-SHA256 genera 32 bytes (64 caracteres hex)
-    const hmac = CryptoJS.HmacSHA256(paqueteWordArray, password);
-    const hmacHex = hmac.toString();
-
-    // 4. Concatenar al final: [PaqueteCifrado] + [HMAC]
-    const resultadoFinal = paqueteCifradoHex + hmacHex;
-
-    document.getElementById("mensaje_cifrado").value = resultadoFinal;
-
-    // Métricas
-    const t_final = performance.now();
-    document.getElementById("tiempo_ejecucion").innerText = `⏱️ Cifrado + HMAC: ${(t_final - t_inicio).toFixed(2)} ms`;
-    document.getElementById("btn_cifrar").innerText = "Cifrar";
-    
-    console.log("HMAC adjunto:", hmacHex);
-  }, 20);
+  if (longitud === 0) { indicador.style.display = "none"; return; }
+  
+  indicador.style.display = "block";
+  indicador.classList.remove("fortaleza-baja", "fortaleza-bien", "fortaleza-mejor");
+  
+  if (longitud < 12) {
+    indicador.textContent = "Baja"; indicador.classList.add("fortaleza-baja");
+  } else if (longitud < 32) {
+    indicador.textContent = "Bien"; indicador.classList.add("fortaleza-bien");
+  } else {
+    indicador.textContent = "Mejor"; indicador.classList.add("fortaleza-mejor");
+  }
 }
 
-function descifrar() {
-  // ... validaciones ...
-  const password = document.getElementById("tu_password").value;
-  const paqueteCompleto = document.getElementById("mensaje_cifrado").value.trim();
+function validarCampos() {
+  const password = document.getElementById("tu_password").value.trim();
+  const password_confirm = document.getElementById("tu_password_confirm").value.trim();
+  
+  // Nota: validamos mensaje dentro de las funciones principales para ser flexibles con la caja de salida
+  
+  if (password === "") {
+    alert("⚠️ Por favor, escribe una contraseña");
+    document.getElementById("tu_password").focus();
+    return false;
+  }
+  if (password_confirm === "") {
+    alert("⚠️ Por favor, confirma tu contraseña");
+    document.getElementById("tu_password_confirm").focus();
+    return false;
+  }
+  if (password !== password_confirm) {
+    alert("❌ Las contraseñas no coinciden.");
+    document.getElementById("tu_password_confirm").focus();
+    document.getElementById("tu_password_confirm").select();
+    return false;
+  }
+  return true; 
+}
 
-  document.getElementById("btn_descifrar").innerText = "Calculando...";
+function copiarTextoCifrado(){
+  const mensaje_cifrado = document.getElementById("mensaje_cifrado").value;
+  if (mensaje_cifrado !== "") {
+    navigator.clipboard.writeText(mensaje_cifrado)
+      .then(() => { console.log("Copiado al portapapeles"); })
+      .catch(err => { console.log("Error al copiar: ", err); });
+  }
+}
 
+// --- LÓGICA CRIPTOGRÁFICA V3 (AES + HMAC) ---
+
+function cifrar() {
+  if (!validarCampos()) return;
+  
+  const mensaje = document.getElementById("mensaje_cifrar").value.trim();
+  if (mensaje === "") { alert("⚠️ Escribe un mensaje para cifrar."); return; }
+
+  const btn = document.getElementById("btn_cifrar");
+  const textoOriginalBtn = btn.innerText;
+
+  // 1. UI: Feedback de carga
+  btn.innerText = "Calculando...";
+  btn.disabled = true;
+  document.getElementById("tiempo_ejecucion").innerText = "";
+
+  // 2. Ejecución diferida para no bloquear renderizado
   setTimeout(() => {
     try {
       const t_inicio = performance.now();
+      const password = document.getElementById("tu_password").value;
+      const mensaje_cifrado_caja = document.getElementById("mensaje_cifrado");
 
-      // Longitud del HMAC SHA-256 en Hex = 64 caracteres (32 bytes)
-      const longitudHMAC = 64; 
-      
-      // Separar el contenido: [Todo lo cifrado] <--corte--> [HMAC]
-      if (paqueteCompleto.length < longitudHMAC) throw new Error("Mensaje demasiado corto.");
+      // A. Generar Salt (16 bytes)
+      const salt = CryptoJS.lib.WordArray.random(128/8);
 
-      const contenidoCifradoHex = paqueteCompleto.substring(0, paqueteCompleto.length - longitudHMAC);
-      const hmacRecibidoHex = paqueteCompleto.substring(paqueteCompleto.length - longitudHMAC);
-
-      // --- NUEVO V3: VERIFICACIÓN DE INTEGRIDAD ---
-      // 1. Recalcular el HMAC con lo que me ha llegado y mi contraseña
-      const contenidoWordArray = CryptoJS.enc.Hex.parse(contenidoCifradoHex);
-      const hmacCalculado = CryptoJS.HmacSHA256(contenidoWordArray, password).toString();
-
-      // 2. Comparar HMAC Recibido vs Calculado
-      if (hmacCalculado !== hmacRecibidoHex) {
-        // ¡ALERTA DE SEGURIDAD!
-        throw new Error("⛔ INTEGRIDAD FALLIDA: El mensaje ha sido manipulado o la contraseña es incorrecta.");
-      }
-      
-      // Si pasamos aquí, el mensaje es AUTÉNTICO. Procedemos a descifrar (Lógica V2)
-      
-      const saltHex = contenidoCifradoHex.substr(0, 32);
-      const ivHex   = contenidoCifradoHex.substr(32, 32);
-      const ctHex   = contenidoCifradoHex.substr(64);
-
-      const salt = CryptoJS.enc.Hex.parse(saltHex);
-      const iv   = CryptoJS.enc.Hex.parse(ivHex);
-      const ciphertext = CryptoJS.enc.Hex.parse(ctHex);
-
+      // B. Derivar clave AES (PBKDF2)
       const keyAES = CryptoJS.PBKDF2(password, salt, {
         keySize: 256/32,
         iterations: 100000,
         hasher: CryptoJS.algo.SHA256
       });
 
-      const decrypted = CryptoJS.AES.decrypt(
-        { ciphertext: ciphertext },
-        keyAES,
-        { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }
-      );
+      // C. Cifrar (AES-CBC)
+      const iv = CryptoJS.lib.WordArray.random(128/8);
+      const encrypted = CryptoJS.AES.encrypt(mensaje, keyAES, {
+        iv: iv,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7
+      });
 
-      const mensajeOriginal = decrypted.toString(CryptoJS.enc.Utf8);
-
-      if (!mensajeOriginal) throw new Error("Error de descifrado (Padding).");
-
-      document.getElementById("mensaje_cifrado").value = mensajeOriginal;
+      // D. Construir paquete cifrado (Salt + IV + Ciphertext)
+      const paqueteCifradoHex = salt.toString() + iv.toString() + encrypted.ciphertext.toString();
       
+      // E. NUEVO V3: Calcular HMAC (Firma de integridad)
+      // Firmamos todo el paquete usando la misma password (para simplificar didácticamente)
+      const paqueteWordArray = CryptoJS.enc.Hex.parse(paqueteCifradoHex);
+      const hmac = CryptoJS.HmacSHA256(paqueteWordArray, password);
+      const hmacHex = hmac.toString(); // 32 bytes = 64 hex chars
+
+      // F. Concatenar final: [PaqueteCifrado] + [HMAC]
+      mensaje_cifrado_caja.value = paqueteCifradoHex + hmacHex;
+
+      // Métricas
       const t_final = performance.now();
-      document.getElementById("tiempo_ejecucion").innerText = `⏱️ Verificación HMAC + Descifrado: ${(t_final - t_inicio).toFixed(2)} ms`;
+      document.getElementById("tiempo_ejecucion").innerText = `⏱️ Cifrado + HMAC: ${(t_final - t_inicio).toFixed(2)} ms`;
+      console.log("HMAC Generado:", hmacHex);
 
     } catch (e) {
-      alert(e.message);
       console.error(e);
-      document.getElementById("tiempo_ejecucion").innerText = "❌ Error de seguridad";
+      alert("Error al cifrar: " + e.message);
     } finally {
-      document.getElementById("btn_descifrar").innerText = "Descifrar";
+      btn.innerText = textoOriginalBtn;
+      btn.disabled = false;
     }
   }, 20);
+}
+
+function descifrar() {
+  if (!validarCampos()) return;
+  
+  // En descifrado, leemos de la caja de salida si el usuario pegó allí el código
+  let paqueteCompleto = document.getElementById("mensaje_cifrado").value.trim();
+  // Si está vacía, miramos si lo puso en la entrada
+  if(paqueteCompleto === "") {
+     paqueteCompleto = document.getElementById("mensaje_cifrar").value.trim();
+  }
+  
+  if (paqueteCompleto === "") { 
+      alert("⚠️ Pega el código cifrado (HEX) en la caja de salida."); 
+      document.getElementById("mensaje_cifrado").focus();
+      return; 
+  }
+
+  const btn = document.getElementById("btn_descifrar");
+  const textoOriginalBtn = btn.innerText;
+
+  // 1. UI Feedback
+  btn.innerText = "Calculando...";
+  btn.disabled = true;
+  document.getElementById("tiempo_ejecucion").innerText = "";
+
+  setTimeout(() => {
+    try {
+        const t_inicio = performance.now();
+        const password = document.getElementById("tu_password").value;
+
+        // Longitud HMAC SHA-256 = 64 caracteres Hex (32 bytes)
+        const longitudHMAC = 64; 
+        
+        if (paqueteCompleto.length < longitudHMAC + 32) { // +32 mínimo para salt/iv
+             throw new Error("El mensaje es demasiado corto para ser válido.");
+        }
+
+        // A. Separar: [Todo lo Cifrado] <---> [HMAC]
+        const contenidoCifradoHex = paqueteCompleto.substring(0, paqueteCompleto.length - longitudHMAC);
+        const hmacRecibidoHex = paqueteCompleto.substring(paqueteCompleto.length - longitudHMAC);
+
+        // B. NUEVO V3: VERIFICAR INTEGRIDAD (Antes de descifrar)
+        const contenidoWordArray = CryptoJS.enc.Hex.parse(contenidoCifradoHex);
+        const hmacCalculado = CryptoJS.HmacSHA256(contenidoWordArray, password).toString();
+
+        if (hmacCalculado !== hmacRecibidoHex) {
+            // Error crítico de seguridad
+            throw new Error("⛔ INTEGRIDAD FALLIDA: El mensaje ha sido manipulado o la contraseña es incorrecta.");
+        }
+
+        // C. Si llegamos aquí, el mensaje es auténtico. Procedemos igual que en V2.
+        const saltHex = contenidoCifradoHex.substr(0, 32);
+        const ivHex   = contenidoCifradoHex.substr(32, 32);
+        const ctHex   = contenidoCifradoHex.substr(64);
+
+        const salt = CryptoJS.enc.Hex.parse(saltHex);
+        const iv   = CryptoJS.enc.Hex.parse(ivHex);
+        const ciphertext = CryptoJS.enc.Hex.parse(ctHex);
+
+        // Derivar clave AES
+        const keyAES = CryptoJS.PBKDF2(password, salt, {
+            keySize: 256/32,
+            iterations: 100000,
+            hasher: CryptoJS.algo.SHA256
+        });
+
+        // Descifrar
+        const decrypted = CryptoJS.AES.decrypt(
+            { ciphertext: ciphertext },
+            keyAES,
+            { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }
+        );
+
+        const mensajeOriginal = decrypted.toString(CryptoJS.enc.Utf8);
+
+        // Validación final de padding/utf8
+        if (!mensajeOriginal || mensajeOriginal.length === 0) {
+            throw new Error("Error de descifrado (Padding inválido).");
+        }
+
+        // Mostrar resultado
+        document.getElementById("mensaje_cifrado").value = mensajeOriginal;
+
+        const t_final = performance.now();
+        document.getElementById("tiempo_ejecucion").innerText = `⏱️ Verificación HMAC + Descifrado: ${(t_final - t_inicio).toFixed(2)} ms`;
+
+    } catch (e) {
+        console.error(e);
+        // Mostramos el error exacto (útil para que el alumno vea "Integridad fallida")
+        alert(e.message);
+        document.getElementById("mensaje_cifrado").value = ""; // Limpiar basura
+        document.getElementById("tiempo_ejecucion").innerText = "❌ Error";
+    } finally {
+        btn.innerText = textoOriginalBtn;
+        btn.disabled = false;
+    }
+  }, 20); // Delay técnico
 }
 </script>
 </head>
 <body>
-<h1>Actividad 3: AES-256 + PBKDF2 + HMAC (Integridad)</h1>
-<p>Esta versión verifica que el mensaje no haya sido modificado antes de intentar leerlo.</p>
+
+<div>
+<h1>Actividad 3: AES-256 + HMAC (Integridad)</h1>
+</div>
+
+<div>
+<p>Instrucciones (Versión Segura):</p>
+<ol>
+<li>Escribe tu contraseña (se usará para cifrar y firmar).</li>
+<li>Escribe tu mensaje.</li>
+<li>Al cifrar, se añade una <strong>Firma HMAC</strong> al final.</li>
+<li>Al descifrar, si modificas un solo carácter del código Hex, fallará la integridad.</li>
+</ol>
+<hr><br>
+</div>
+
+<div class="password-container">
+<label for="tu_password">Contraseña:</label>
+<input type="password" id="tu_password" placeholder="escribe tu contraseña" oninput="comprobarFortaleza()" >
+<span id="fortaleza_indicador" class="fortaleza-password"></span>
+</div>
+	
+<div>
+<label for="tu_password_confirm">Repite contraseña:</label>
+<input type="password" id="tu_password_confirm" placeholder="confirma contraseña" >
+</div>
+
+<div>
+<label for="mensaje_cifrar">Mensaje entrada:</label>
+<input type="text" id="mensaje_cifrar" placeholder="escribe mensaje para cifrar" >
+</div>
+<br>
+
+<div>
+<button type="button" id="btn_cifrar" class="boton_grande" onclick="cifrar()">Cifrar + HMAC</button>	
+</div>
+<div>
+<button type="button" id="btn_descifrar" class="boton_grande" onclick="descifrar()">Verificar y Descifrar</button>
+</div>
+<br>
+
+<div>
+<label for="mensaje_cifrado">Mensaje salida (Resultado):</label>
+<textarea rows="6" id="mensaje_cifrado" placeholder="Aquí saldrá el mensaje cifrado (HEX) o el texto descifrado"></textarea>
+</div>
+
+<div>
+<button type="button" class="boton_grande" onclick="copiarTextoCifrado()">Copiar salida</button>
+</div>
+
+<footer>
+  <div style="width:100%;text-align: center;">
+    <p><strong>Cifrador AES-256 + PBKDF2 + HMAC</strong></p>
+    
+    <p id="tiempo_ejecucion"></p>
+
+    <p>Usando CryptoJS 4.2.0 (Encrypt-then-MAC)</p>
+    <p style="font-size: 12px; color: #888;">⚠️ Para uso educativo (Nivel 3) ⚠️</p>
+	<p style="font-size: 10px; color: #888;">
+        <a href="index.html" class="invisible-link">Ver. 1</a> | 
+        <a href="index_aes_cbc_pbkdf2.html" class="invisible-link">Ver. 2</a>
+    </p>
+    <br>
+  </div>
+</footer>
+
 </body>
 </html>
