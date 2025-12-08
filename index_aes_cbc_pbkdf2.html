@@ -287,10 +287,13 @@ if (!validarCampos()) {
 
     const mensajeOriginal = decrypted.toString(CryptoJS.enc.Utf8);
 
-    if (!mensajeOriginal) {
-      // Si la conversión a UTF-8 falla o está vacía, normalmente indica error
-      alert("Error al descifrar. Contraseña incorrecta o mensaje corrupto.");
-      return;
+// --- MEJORA AQUÍ ---
+      // Verificamos si es null/undefined (!mensajeOriginal)
+      // O si es una cadena vacía explícita (length === 0)
+ 
+    if (!mensajeOriginal || mensajeOriginal.length === 0) {
+        // En lugar de alertar aquí, "lanzamos" el error al catch
+        throw new Error("Contraseña incorrecta (resultado vacío)");
     }
 
     // Mostrar el mensaje original en la caja de salida
@@ -304,13 +307,15 @@ if (!validarCampos()) {
     // 3. MOSTRAR EN EL HTML
     document.getElementById("tiempo_ejecucion").innerText = `⏱️ Tiempo de descifrado: ${tiempoTotal} ms`;
 
-
-    
-  } catch (e) {
+} catch (e) {
+    console.error(e); // Para que tú veas el error técnico en la consola
     alert("Error al descifrar. Contraseña incorrecta o mensaje corrupto.");
-    console.log(e);
+    
+    // Limpieza visual: si falló, borramos la caja de texto y el tiempo
+    document.getElementById("mensaje_cifrado").value = ""; 
+    document.getElementById("tiempo_ejecucion").innerText = ""; 
   }
-}
+
 </script>
 </head>
 
