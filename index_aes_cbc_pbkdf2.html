@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>..CryptoJS AES-256 CBC + PBKDF2</title>
+<title>...CryptoJS AES-256 CBC + PBKDF2</title>
 <link rel="icon" href="data:,">
 
 <meta charset="UTF-8">
@@ -229,26 +229,6 @@ if (!validarCampos()) {
   const password = document.getElementById("tu_password").value.trim();
   const password_confirm = document.getElementById("tu_password_confirm").value.trim();
   const paquete = document.getElementById("mensaje_cifrar").value.trim();
-
-  // Validaciones específicas para descifrar
-  if (password === "") {
-    alert("⚠️ *Por favor, escribe una contraseña");
-    document.getElementById("tu_password").focus();
-    return;
-  }
-
-  if (password_confirm === "") {
-    alert("⚠️ *Por favor, confirma tu contraseña");
-    document.getElementById("tu_password_confirm").focus();
-    return;
-  }
-
-  if (password !== password_confirm) {
-    alert("❌ *Las contraseñas no coinciden. Por favor, verifica.");
-    document.getElementById("tu_password_confirm").focus();
-    document.getElementById("tu_password_confirm").select();
-    return;
-  }
 
  
   try {
