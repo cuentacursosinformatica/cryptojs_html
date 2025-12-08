@@ -193,14 +193,18 @@ function cifrar() {
 
   // Generar salt aleatorio (16 bytes)
   const salt = CryptoJS.lib.WordArray.random(128/8);
-
+ 
+  // INICIO MEDICIÓN
+  console.time('Derivacion (Cifrar)');
+  
   // Derivar clave con PBKDF2 (AES-256)
   const key = CryptoJS.PBKDF2(password, salt, {
     keySize: 256/32,
     iterations: 100000,
     hasher: CryptoJS.algo.SHA256
   });
-
+// FIN MEDICIÓN
+  console.timeEnd('Derivacion (Cifrar)');
   // Generar IV aleatorio (16 bytes)
   const iv = CryptoJS.lib.WordArray.random(128/8);
 
